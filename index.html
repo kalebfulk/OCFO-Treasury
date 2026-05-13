@@ -10,10 +10,10 @@
     --city-green: #004445;
     --spirit-green: #279989;
     --pale-green: #9FD5B3;
-    --accent-yellow: #FEB70D;
     --light-grey: #F2F2F2;
     --near-black: #18252A;
     --white: #FFFFFF;
+    --error-red: #d32f2f;
     --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
   }
 
@@ -36,7 +36,7 @@
     margin: 0 auto;
   }
   .header h1 {
-    font-family: 'Montserrat', Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 22px;
     color: var(--white);
@@ -60,7 +60,7 @@
   }
   .input-group label {
     display: block;
-    font-family: 'Montserrat', Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
@@ -97,7 +97,7 @@
     border-bottom: 1px solid #eee;
   }
   .scenario-title {
-    font-family: 'Montserrat', Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 16px;
     color: var(--city-green);
@@ -105,14 +105,12 @@
 
   .result-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     padding: 20px;
     gap: 15px;
     text-align: center;
   }
-  .result-item {
-    padding: 10px;
-  }
+  .result-item { padding: 10px; }
   .result-label {
     font-size: 11px;
     text-transform: uppercase;
@@ -120,20 +118,12 @@
     color: #888;
     margin-bottom: 5px;
   }
-  .result-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--near-black);
-  }
-  .result-subtext {
-    font-size: 10px;
-    color: #aaa;
-    margin-top: 4px;
-    display: block;
-  }
-  .result-value.highlight {
-    color: var(--spirit-green);
-  }
+  .result-value { font-size: 18px; font-weight: 700; color: var(--near-black); }
+  .result-subtext { font-size: 10px; color: #aaa; display: block; }
+  
+  /* Conditional Styles */
+  .negative-alert { color: var(--error-red) !important; }
+  .positive-value { color: var(--spirit-green); }
 
   .footer {
     max-width: 1000px;
@@ -178,17 +168,17 @@
     <div class="result-grid">
       <div class="result-item">
         <div class="result-label">Fixed Costs</div>
-        <div class="result-value" id="aFixed">-$1,250</div>
-        <span class="result-subtext">Integration Only</span>
+        <div class="result-value">-$1,250.00</div>
+        <span class="result-subtext">Monthly Integration Cost</span>
       </div>
       <div class="result-item">
         <div class="result-label">Transaction Fees</div>
-        <div class="result-value" id="aFees">-$2,500</div>
+        <div class="result-value" id="aFees">-$2,500.00</div>
         <span class="result-subtext">$0.25 per transaction</span>
       </div>
       <div class="result-item">
         <div class="result-label">Net Realized Revenue</div>
-        <div class="result-value highlight" id="aNet">$4,996,250</div>
+        <div class="result-value positive-value" id="aNet">$4,996,250.00</div>
       </div>
       <div class="result-item">
         <div class="result-label">Collection Cost %</div>
@@ -204,17 +194,17 @@
     <div class="result-grid">
       <div class="result-item">
         <div class="result-label">Fixed Costs</div>
-        <div class="result-value" id="bFixed">-$3,000</div>
-        <span class="result-subtext">$1,250 Integration + $1,750 Kiosk</span>
+        <div class="result-value">-$3,000.00</div>
+        <span class="result-subtext">$1,250 Int. + $1,750 Kiosk</span>
       </div>
       <div class="result-item">
         <div class="result-label">Transaction Fees</div>
-        <div class="result-value" id="bFees">-$12,500</div>
-        <span class="result-subtext">$1.25 blended rate</span>
+        <div class="result-value" id="bFees">-$12,500.00</div>
+        <span class="result-subtext">$1.25 blended rate*</span>
       </div>
       <div class="result-item">
         <div class="result-label">Net Realized Revenue</div>
-        <div class="result-value highlight" id="bNet">$4,984,500</div>
+        <div class="result-value positive-value" id="bNet">$4,984,500.00</div>
       </div>
       <div class="result-item">
         <div class="result-label">Collection Cost %</div>
@@ -241,7 +231,7 @@ function calculate() {
   const revenue = avgAmt * txCount;
   document.getElementById('displayRev').innerText = formatCurr(revenue);
 
-  // Scenario A 
+  // Scenario A
   const aFixed = 1250;
   const aFees = txCount * 0.25;
   const aTotalCost = aFixed + aFees;
@@ -249,10 +239,16 @@ function calculate() {
   const aPct = revenue > 0 ? (aTotalCost / revenue) * 100 : 0;
 
   document.getElementById('aFees').innerText = '-' + formatCurr(aFees);
-  document.getElementById('aNet').innerText = formatCurr(aNet);
-  document.getElementById('aPct').innerText = aPct.toFixed(2) + '%';
+  
+  const aNetEl = document.getElementById('aNet');
+  aNetEl.innerText = formatCurr(aNet);
+  aNetEl.className = aNet < 0 ? 'result-value negative-alert' : 'result-value positive-value';
 
-  // Scenario B 
+  const aPctEl = document.getElementById('aPct');
+  aPctEl.innerText = aPct.toFixed(2) + '%';
+  aPctEl.className = aPct > 100 ? 'result-value negative-alert' : 'result-value';
+
+  // Scenario B
   const bFixed = 1250 + 1750; 
   const bFees = txCount * 1.25; 
   const bTotalCost = bFixed + bFees;
@@ -260,10 +256,17 @@ function calculate() {
   const bPct = revenue > 0 ? (bTotalCost / revenue) * 100 : 0;
 
   document.getElementById('bFees').innerText = '-' + formatCurr(bFees);
-  document.getElementById('bNet').innerText = formatCurr(bNet);
-  document.getElementById('bPct').innerText = bPct.toFixed(2) + '%';
+  
+  const bNetEl = document.getElementById('bNet');
+  bNetEl.innerText = formatCurr(bNet);
+  bNetEl.className = bNet < 0 ? 'result-value negative-alert' : 'result-value positive-value';
+
+  const bPctEl = document.getElementById('bPct');
+  bPctEl.innerText = bPct.toFixed(2) + '%';
+  bPctEl.className = bPct > 100 ? 'result-value negative-alert' : 'result-value';
 }
 
+// Initial calculation on load
 calculate();
 </script>
 

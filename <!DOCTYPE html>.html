@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Channel Affordability Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --city-green: #004445;
+    --spirit-green: #279989;
+    --pale-green: #9FD5B3;
+    --accent-yellow: #FEB70D;
+    --light-grey: #F2F2F2;
+    --near-black: #18252A;
+    --white: #FFFFFF;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--light-grey);
+    color: var(--near-black);
+    line-height: 1.5;
+  }
+
+  .header {
+    background: var(--city-green);
+    padding: 28px 32px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .header h1 {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--white);
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: var(--pale-green);
+  }
+
+  .input-section {
+    background: var(--white);
+    border-bottom: 1px solid #e0e0e0;
+    padding: 24px 32px;
+  }
+  .input-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  .input-group label {
+    display: block;
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--city-green);
+  }
+
+  .main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  .scenario-card {
+    background: var(--white);
+    border-radius: 6px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 24px;
+    overflow: hidden;
+    border-top: 4px solid var(--spirit-green);
+  }
+  .scenario-header {
+    padding: 16px 20px;
+    background: #fcfcfc;
+    border-bottom: 1px solid #eee;
+  }
+  .scenario-title {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--city-green);
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    padding: 20px;
+    gap: 15px;
+    text-align: center;
+  }
+  .result-item {
+    padding: 10px;
+  }
+  .result-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 5px;
+  }
+  .result-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--near-black);
+  }
+  .result-subtext {
+    font-size: 10px;
+    color: #aaa;
+    margin-top: 4px;
+    display: block;
+  }
+  .result-value.highlight {
+    color: var(--spirit-green);
+  }
+
+  .footer {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 32px 40px;
+    font-size: 11px;
+    color: #999;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>Payment Channel Affordability Analysis</h1>
+    <div class="subtitle">Net Realized Revenue Calculator — Scenario Comparison</div>
+  </div>
+</div>
+
+<div class="input-section">
+  <div class="input-grid">
+    <div class="input-group">
+      <label>Avg. Transaction Amount ($)</label>
+      <input type="number" id="avgAmt" value="500" oninput="calculate()">
+    </div>
+    <div class="input-group">
+      <label>Monthly Transactions (#)</label>
+      <input type="number" id="monthlyTx" value="10000" oninput="calculate()">
+    </div>
+    <div class="input-group">
+      <label>Calculated Monthly Revenue</label>
+      <div id="displayRev" style="font-weight: 700; font-size: 18px; color: var(--city-green); padding: 10px 0;">$5,000,000</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-title">Scenario A: eCommerce Payments Only</div>
+    </div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-label">Fixed Costs</div>
+        <div class="result-value" id="aFixed">-$1,250</div>
+        <span class="result-subtext">Integration Only</span>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Transaction Fees</div>
+        <div class="result-value" id="aFees">-$2,500</div>
+        <span class="result-subtext">$0.25 per transaction</span>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Net Realized Revenue</div>
+        <div class="result-value highlight" id="aNet">$4,996,250</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Collection Cost %</div>
+        <div class="result-value" id="aPct">0.08%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-title">Scenario B: eCommerce + Department Kiosk</div>
+    </div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-label">Fixed Costs</div>
+        <div class="result-value" id="bFixed">-$3,000</div>
+        <span class="result-subtext">$1,250 Integration + $1,750 Kiosk</span>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Transaction Fees</div>
+        <div class="result-value" id="bFees">-$12,500</div>
+        <span class="result-subtext">$1.25 blended rate</span>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Net Realized Revenue</div>
+        <div class="result-value highlight" id="bNet">$4,984,500</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Collection Cost %</div>
+        <div class="result-value" id="bPct">0.31%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  * Scenario B assumes a 50/50 split between web ($0.25) and kiosk ($2.25) transactions.<br>
+  Prepared for Internal Analysis — Finance Technology and Analytics.
+</div>
+
+<script>
+function formatCurr(num) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+}
+
+function calculate() {
+  const avgAmt = parseFloat(document.getElementById('avgAmt').value) || 0;
+  const txCount = parseFloat(document.getElementById('monthlyTx').value) || 0;
+  
+  const revenue = avgAmt * txCount;
+  document.getElementById('displayRev').innerText = formatCurr(revenue);
+
+  // Scenario A 
+  const aFixed = 1250;
+  const aFees = txCount * 0.25;
+  const aTotalCost = aFixed + aFees;
+  const aNet = revenue - aTotalCost;
+  const aPct = revenue > 0 ? (aTotalCost / revenue) * 100 : 0;
+
+  document.getElementById('aFees').innerText = '-' + formatCurr(aFees);
+  document.getElementById('aNet').innerText = formatCurr(aNet);
+  document.getElementById('aPct').innerText = aPct.toFixed(2) + '%';
+
+  // Scenario B 
+  const bFixed = 1250 + 1750; 
+  const bFees = txCount * 1.25; 
+  const bTotalCost = bFixed + bFees;
+  const bNet = revenue - bTotalCost;
+  const bPct = revenue > 0 ? (bTotalCost / revenue) * 100 : 0;
+
+  document.getElementById('bFees').innerText = '-' + formatCurr(bFees);
+  document.getElementById('bNet').innerText = formatCurr(bNet);
+  document.getElementById('bPct').innerText = bPct.toFixed(2) + '%';
+}
+
+calculate();
+</script>
+
+</body>
+</html>
